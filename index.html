@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>شبكة الطلاب</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- نموذج إنشاء حساب -->
+        <div class="form-container" id="signup-form">
+            <h1>إنشاء حساب جديد</h1>
+            <form action="/signup" method="post">
+                <input type="text" name="username" placeholder="اسم المستخدم" required>
+                <input type="email" name="email" placeholder="البريد الإلكتروني" required>
+                <input type="password" name="password" placeholder="كلمة المرور" required>
+                <button type="submit">إنشاء حساب</button>
+            </form>
+        </div>
+
+        <!-- نموذج تسجيل الدخول -->
+        <div class="form-container" id="login-form">
+            <h1>تسجيل الدخول</h1>
+            <form action="/login" method="post">
+                <input type="email" name="email" placeholder="البريد الإلكتروني" required>
+                <input type="password" name="password" placeholder="كلمة المرور" required>
+                <button type="submit">دخول</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
