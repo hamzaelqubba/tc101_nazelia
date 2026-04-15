@@ -1,41 +1,113 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الصفحة الرئيسية - شبكة الطلاب</title>
+    <title>الرئيسية</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="main-container">
-        <h1 id="welcome-message">مرحباً بك!</h1>
-
-        <!-- نموذج إنشاء منشور جديد -->
-        <div class="post-form-container">
-            <h2>اكتب منشوراً جديداً</h2>
-            <form action="/post" method="post">
-                <textarea name="postContent" placeholder="بماذا تفكر؟" required></textarea>
-                <!-- سنضيف اسم المستخدم هنا بشكل مخفي لاحقاً -->
-                <input type="hidden" name="username" id="post-username">
-                <button type="submit">نشر</button>
-            </form>
+    <div class="navbar">
+        <h2>الشبكة الاحترافية</h2>
+        <div>
+            <a href="profile.html">ملفي الشخصي</a>
+            <a href="#" onclick="logout()">تسجيل الخروج</a>
         </div>
-
-        <!-- قسم عرض المنشورات -->
-        <div class="posts-container" id="posts-list">
-            <h2>أحدث المنشورات</h2>
-            <!-- سيتم إدراج المنشورات هنا بواسطة الخادم -->
+    </div>
+    <div class="container">
+        <div class="card" style="text-align: center;">
+            <h1 id="welcome-msg">مرحباً بك!</h1>
+            <p>مرحباً بك في المنصة الاحترافية للطلاب. يمكنك هنا استعراض زملائك والتواصل معهم.</p>
+            <br>
+            <a href="members.html" class="btn" style="width: auto;">رؤية الأعضاء</a>
         </div>
     </div>
 
     <script>
-        // هذا السكربت يأخذ اسم المستخدم من الرابط ويضعه في رسالة الترحيب
-        const urlParams = new URLSearchParams(window.location.search);
-        const username = urlParams.get('username');
-        if (username) {
-            document.getElementById('welcome-message').innerText = `مرحباً بعودتك، ${username}!`;
-            document.getElementById('post-username').value = username; // لإرسال اسم المستخدم مع المنشور
+        const user = JSON.parse(localStorage.getItem('currentUser'));
+        if (!user) window.location.href = 'index.html';
+        document.getElementById('welcome-msg').innerText = `مرحباً بك، ${user.fullName || user.username}!`;
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
         }
+    </script>
+</body>
+</html>
+
+
+profile.html (صفحة تعديل الملف الشخصي)
+
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>الملف الشخصي</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="navbar">
+        <a href="home.html">العودة للرئيسية</a>
+    </div>
+    <div class="container">
+        <div class="card">
+            <h1>إعدادات الملف الشخصي</h1>
+            <form id="profile-form">
+                <label>رابط الصورة الشخصية:</label>
+                <input type="text" id="profilePic" placeholder="رابط صورة (URL)">
+                
+                <label>الاسم الكامل:</label>
+                <input type="text" id="fullName" required>
+                
+                <label>تاريخ الميلاد:</label>
+                <input type="date" id="dob">
+                
+                <label>نبذة عنك (البايو):</label>
+                <textarea id="bio" rows="4" placeholder="اكتب شيئاً عنك..."></textarea>
+                
+                <label>روابط التواصل الاجتماعي (مثال: حساب لينكد إن):</label>
+                <input type="text" id="socials" placeholder="روابطك (اختياري)">
+
+                <button type="submit">حفظ التعديلات</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let user = JSON.parse(localStorage.getItem('currentUser'));
+        if (!user) window.location.href = 'index.html';
+
+        // تعبئة البيانات الحالية
+        document.getElementById('profilePic').value = user.profilePic || '';
+        document.getElementById('fullName').value = user.fullName || '';
+        document.getElementById('dob').value = user.dob || '';
+        document.getElementById('bio').value = user.bio || '';
+        document.getElementById('socials').value = user.socials || '';
+
+        document.getElementById('profile-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const updatedData = {
+                username: user.username,
+                profilePic: document.getElementById('profilePic').value,
+                fullName: document.getElementById('fullName').value,
+                dob: document.getElementById('dob').value,
+                bio: document.getElementById('bio').value,
+                socials: document.getElementById('socials').value
+            };
+
+            const res = await fetch('/api/profile/update', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updatedData)
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                localStorage.setItem('currentUser', JSON.stringify(data.user)); // تحديث التخزين المحلي
+                alert('تم حفظ التعديلات بنجاح!');
+                window.location.href = 'home.html';
+            }
+        });
     </script>
 </body>
 </html>
