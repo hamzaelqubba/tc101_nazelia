@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الصفحة الرئيسية - شبكة الطلاب</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="main-container">
+        <h1 id="welcome-message">مرحباً بك!</h1>
+
+        <!-- نموذج إنشاء منشور جديد -->
+        <div class="post-form-container">
+            <h2>اكتب منشوراً جديداً</h2>
+            <form action="/post" method="post">
+                <textarea name="postContent" placeholder="بماذا تفكر؟" required></textarea>
+                <!-- سنضيف اسم المستخدم هنا بشكل مخفي لاحقاً -->
+                <input type="hidden" name="username" id="post-username">
+                <button type="submit">نشر</button>
+            </form>
+        </div>
+
+        <!-- قسم عرض المنشورات -->
+        <div class="posts-container" id="posts-list">
+            <h2>أحدث المنشورات</h2>
+            <!-- سيتم إدراج المنشورات هنا بواسطة الخادم -->
+        </div>
+    </div>
+
+    <script>
+        // هذا السكربت يأخذ اسم المستخدم من الرابط ويضعه في رسالة الترحيب
+        const urlParams = new URLSearchParams(window.location.search);
+        const username = urlParams.get('username');
+        if (username) {
+            document.getElementById('welcome-message').innerText = `مرحباً بعودتك، ${username}!`;
+            document.getElementById('post-username').value = username; // لإرسال اسم المستخدم مع المنشور
+        }
+    </script>
+</body>
+</html>
