@@ -5,48 +5,80 @@ const path = require('path');
 const app = express();
 const port = 3000;
 
-// قاعدة بيانات مؤقتة (في الواقع ستستخدم قاعدة بيانات حقيقية مثل MongoDB أو MySQL)
-const users = [];
+// --- قواعد بيانات مؤقتة ---
+const users = []; // لتخزين المستخدمين
+const posts = []; // لتخزين المنشورات
 
-// إعدادات
+// --- إعدادات ---
 app.use(bodyParser.urlencoded({ extended: true }));
+// لخدمة ملفات CSS و JS
+app.use(express.static(__dirname));
 
-// مسار لعرض الصفحة الرئيسية
+// --- المسارات (Routes) ---
+
+// 1. عرض صفحة التسجيل/الدخول
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// مسار لمعالجة إنشاء حساب جديد
+// 2. معالجة إنشاء حساب
 app.post('/signup', (req, res) => {
     const { username, email, password } = req.body;
-    
-    // تحقق إذا كان المستخدم موجوداً
-    const userExists = users.find(user => user.email === email);
-    if (userExists) {
+    if (users.find(u => u.email === email)) {
         return res.send('هذا البريد الإلكتروني مسجل بالفعل!');
     }
-
-    // إضافة المستخدم الجديد
     users.push({ username, email, password });
-    console.log('المستخدمون المسجلون:', users); // لغرض التجربة
-    res.send('تم إنشاء حسابك بنجاح! يمكنك الآن تسجيل الدخول.');
+    res.send('تم إنشاء حسابك بنجاح! <a href="/">عد لتسجيل الدخول</a>');
 });
 
-// مسار لمعالجة تسجيل الدخول
+// 3. معالجة تسجيل الدخول (*** تحديث مهم هنا ***)
 app.post('/login', (req, res) => {
     const { email, password } = req.body;
-    
-    // البحث عن المستخدم
-    const user = users.find(user => user.email === email && user.password === password);
+    const user = users.find(u => u.email === email && u.password === password);
     
     if (user) {
-        res.send(`مرحباً بعودتك، ${user.username}!`);
+        // بدلاً من إرسال رسالة، نوجهه إلى الصفحة الرئيسية مع تمرير اسم المستخدم
+        res.redirect(`/home?username=${user.username}`);
     } else {
         res.send('البريد الإلكتروني أو كلمة المرور غير صحيحة.');
     }
 });
 
-// تشغيل الخادم
+// 4. عرض الصفحة الرئيسية مع المنشورات (*** مسار جديد ***)
+app.get('/home', (req, res) => {
+    //  إرسال ملف home.html
+    res.sendFile(path.join(__dirname, 'home.html'));
+});
+
+
+// 5. مسار لجلب المنشورات كـ JSON (*** مسار جديد ***)
+// سيقوم الفرونت اند بطلب هذه البيانات
+app.get('/posts', (req, res) => {
+    // نعكس ترتيب المنشورات لعرض الأحدث أولاً
+    res.json(posts.slice().reverse());
+});
+
+
+// 6. معالجة منشور جديد (*** مسار جديد ***)
+app.post('/post', (req, res) => {
+    const { postContent, username } = req.body;
+    
+    if (postContent && username) {
+        const newPost = {
+            author: username,
+            content: postContent,
+            timestamp: new Date().toLocaleString('ar-EG') // تاريخ مقروء
+        };
+        posts.push(newPost);
+        console.log("منشور جديد:", newPost);
+    }
+    // إعادة توجيه المستخدم إلى الصفحة الرئيسية ليرى منشوره الجديد
+    res.redirect(`/home?username=${username}`);
+});
+
+
+// --- تشغيل الخادم ---
 app.listen(port, () => {
     console.log(`الخادم يعمل على http://localhost:${port}`);
 });
+
