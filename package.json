@@ -1,0 +1,12 @@
+{
+  "name": "student-network-pro",
+  "version": "1.0.0",
+  "description": "Professional Black and White Student Social Network",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
