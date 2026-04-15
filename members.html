@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>الأعضاء</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="navbar">
+        <h2>دليل الطلاب</h2>
+        <a href="home.html">العودة للرئيسية</a>
+    </div>
+    <div class="container">
+        <div class="members-grid" id="members-container">
+            <!-- سيتم إضافة الأعضاء هنا عبر جافاسكربت -->
+        </div>
+    </div>
+
+    <script>
+        async function fetchMembers() {
+            const res = await fetch('/api/members');
+            const members = await res.json();
+            const container = document.getElementById('members-container');
+
+            if (members.length === 0) {
+                container.innerHTML = '<p>لا يوجد أعضاء حالياً.</p>';
+                return;
+            }
+
+            members.forEach(member => {
+                const card = document.createElement('div');
+                card.className = 'card member-card';
+                card.innerHTML = `
+                    <img src="${member.profilePic || 'https://via.placeholder.com/150'}" class="profile-pic" alt="صورة">
+                    <h3>${member.fullName || member.username}</h3>
+                    <p style="color: gray; font-size: 0.9em;">@${member.username}</p>
+                    <p>${member.bio || 'لا يوجد بايو متاح.'}</p>
+                    ${member.socials ? `<a href="${member.socials}" target="_blank" style="color:#000; font-weight:bold;">روابط التواصل</a>` : ''}
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        fetchMembers();
+    </script>
+</body>
+</html>
