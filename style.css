@@ -1,36 +1,168 @@
-/* ... (التنسيقات السابقة) ... */
-
-/* تنسيقات الصفحة الرئيسية */
-.main-container {
-    width: 80%;
-    max-width: 700px;
+:root {
+    --bg-color: #ffffff;
+    --text-color: #000000;
+    --border-color: #e0e0e0;
+    --btn-bg: #000000;
+    --btn-text: #ffffff;
+    --btn-hover: #333333;
 }
-.post-form-container, .posts-container {
-    background: #fff;
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    direction: rtl;
+}
+
+.container {
+    max-width: 800px;
+    margin: 50px auto;
     padding: 20px;
+}
+
+.card {
+    border: 1px solid var(--border-color);
+    padding: 30px;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     margin-bottom: 20px;
 }
-textarea {
+
+h1, h2, h3 {
+    margin-top: 0;
+}
+
+input, textarea {
     width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid var(--border-color);
     border-radius: 4px;
-    min-height: 80px;
-    margin-bottom: 10px;
     box-sizing: border-box;
+    font-family: inherit;
 }
-.post {
-    border: 1px solid #eee;
-    padding: 15px;
-    margin-top: 15px;
-    border-radius: 6px;
-}
-.post-author {
+
+button, .btn {
+    display: inline-block;
+    background-color: var(--btn-bg);
+    color: var(--btn-text);
+    padding: 12px 24px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
     font-weight: bold;
-    color: #007bff;
+    text-decoration: none;
+    text-align: center;
+    width: 100%;
 }
-.post-content {
-    margin-top: 5px;
+
+button:hover, .btn:hover {
+    background-color: var(--btn-hover);
 }
+
+/* Navbar */
+.navbar {
+    border-bottom: 1px solid var(--border-color);
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.navbar a {
+    color: var(--text-color);
+    text-decoration: none;
+    margin-left: 15px;
+    font-weight: bold;
+}
+
+/* Grid for members */
+.members-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+}
+.member-card {
+    border: 1px solid var(--border-color);
+    padding: 15px;
+    text-align: center;
+    border-radius: 8px;
+}
+.profile-pic {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 10px;
+    border: 2px solid #000;
+}
+
+
+index.html (صفحة الدخول والتسجيل)
+
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>الدخول - شبكة الطلاب</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container" style="max-width: 400px;">
+        <div class="card">
+            <h1 id="form-title">تسجيل الدخول</h1>
+            <form id="auth-form">
+                <input type="text" id="username" placeholder="اسم المستخدم" required>
+                <input type="text" id="fullName" placeholder="الاسم الكامل (للتسجيل فقط)" style="display:none;">
+                <input type="password" id="password" placeholder="كلمة المرور" required>
+                <button type="submit" id="submit-btn">دخول</button>
+            </form>
+            <p style="text-align: center; margin-top: 20px;">
+                <a href="#" id="toggle-form" style="color: #000;">ليس لديك حساب؟ إنشاء حساب جديد</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        let isLogin = true;
+        const form = document.getElementById('auth-form');
+        const toggleBtn = document.getElementById('toggle-form');
+        const title = document.getElementById('form-title');
+        const fullNameInput = document.getElementById('fullName');
+        const submitBtn = document.getElementById('submit-btn');
+
+        toggleBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            isLogin = !isLogin;
+            title.innerText = isLogin ? 'تسجيل الدخول' : 'إنشاء حساب احترافي';
+            submitBtn.innerText = isLogin ? 'دخول' : 'إنشاء حساب';
+            fullNameInput.style.display = isLogin ? 'none' : 'block';
+            toggleBtn.innerText = isLogin ? 'ليس لديك حساب؟ إنشاء حساب جديد' : 'لديك حساب بالفعل؟ تسجيل الدخول';
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const fullName = fullNameInput.value;
+
+            const url = isLogin ? '/api/login' : '/api/signup';
+            const body = isLogin ? { username, password } : { username, password, fullName };
+
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            const data = await res.json();
+            
+            if (res.ok) {
+                localStorage.setItem('currentUser', JSON.stringify(data.user));
+                window.location.href = 'home.html';
+            } else {
+                alert(data.message);
+            }
+        });
+    </script>
+</body>
+</html>
